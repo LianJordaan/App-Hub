@@ -8,7 +8,7 @@ canvas {
   margin: 0 auto;
   background-color: #000;
   width: 100vw;
-  height: calc(100vh - 60px); /* leave 60px for options */
+  height: calc(100vh - 50px); /* leave 60px for options */
 }
 
 .options {
