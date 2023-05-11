@@ -1,6 +1,6 @@
 // Get the canvas element and its context
 const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 
 // Set up some initial values
 let isDrawing = false;
@@ -21,14 +21,14 @@ function draw(event) {
   // Set the stroke style (color) and line width based on user input
   if (document.getElementById('rainbow-mode').checked) {
     // If rainbow mode is on, use a hue value that increases over time
-    context.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
   } else {
     // Otherwise, use the selected color from the color picker
-    context.strokeStyle = document.getElementById('color-picker').value;
+    ctx.strokeStyle = document.getElementById('color-picker').value;
   }
-  context.lineWidth = document.getElementById('brush-size').valueAsNumber;
-  context.lineJoin = 'round';
-  context.lineCap = 'round';
+  ctx.lineWidth = document.getElementById('brush-size').valueAsNumber;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
 
   // Calculate the mouse position relative to the canvas
   const rect = canvas.getBoundingClientRect();
@@ -36,10 +36,10 @@ function draw(event) {
   const mouseY = event.clientY - rect.top;
 
   // Draw a line from the last mouse position to the current one
-  context.beginPath();
-  context.moveTo(lastX, lastY);
-  context.lineTo(mouseX, mouseY);
-  context.stroke();
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(mouseX, mouseY);
+  ctx.stroke();
 
   // Update the last mouse position
   [lastX, lastY] = [mouseX, mouseY];
