@@ -145,3 +145,72 @@ document.getElementById('rainbow-speed').addEventListener('change', () => {
 // Set the initial value of the rainbow speed and start the interval
 rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber;
 startInterval();
+
+//ctx.fillStyle = '#f00';
+//ctx.fillRect(100, 100, 200, 200);
+//ctx.fillStyle = '#0f0';
+//ctx.beginPath();
+//ctx.arc(150, 150, 50, 0, 2 * Math.PI);
+//ctx.fill();
+//ctx.fillStyle = '#00f';
+//ctx.beginPath();
+//ctx.arc(250, 250, 50, 0, 2 * Math.PI);
+//ctx.fill();
+//
+//
+//function fillBucket() {
+//  // Get the color of the starting point
+//  const startX = 150;
+//  const startY = 150;
+//  const startColor = ctx.getImageData(startX, startY, 1, 1).data;
+//
+//  // Create a stack to keep track of pixels to fill
+//  const stack = [{x: startX, y: startY}];
+//
+//  // Create an array to keep track of active intervals
+//  let intervals = [];
+//
+//  // Define the number of intervals to start
+//  const numIntervals = 100;
+//
+//  // Define the function to be executed by each interval
+//  function fillPixels() {
+//    // Loop through the stack until it's empty or we've filled the desired number of pixels
+//    for (let i = 0; i < numIntervals; i++) {
+//      if (stack.length === 0) {
+//        // Stop the interval if there are no more pixels to fill
+//        clearInterval(intervalId);
+//        // Remove the interval from the active intervals array
+//        intervals.splice(intervals.indexOf(intervalId), 1);
+//        break;
+//      }
+//
+//      // Pop the next pixel from the stack
+//      const pixel = stack.pop();
+//
+//      // Get the color of the pixel
+//      const color = ctx.getImageData(pixel.x, pixel.y, 1, 1).data;
+//
+//      // Check if the pixel needs to be filled
+//      if (color[0] === startColor[0] && color[1] === startColor[1] && color[2] === startColor[2]) {
+//        // Fill the pixel with the new color
+//        ctx.fillStyle = '#fff';
+//        ctx.fillRect(pixel.x, pixel.y, 1, 1);
+//
+//        // Add neighboring pixels to the stack
+//        if (pixel.x > 0) stack.push({x: pixel.x - 1, y: pixel.y});
+//        if (pixel.x < canvas.width - 1) stack.push({x: pixel.x + 1, y: pixel.y});
+//        if (pixel.y > 0) stack.push({x: pixel.x, y: pixel.y - 1});
+//        if (pixel.y < canvas.height - 1) stack.push({x: pixel.x, y: pixel.y + 1});
+//      }
+//    }
+//  }
+//
+//  // Start the desired number of intervals
+//  const numPixelsToFill = canvas.width * canvas.height;
+//  const numIntervalsToStart = Math.min(numIntervals, numPixelsToFill);
+//  for (let i = 0; i < numIntervalsToStart; i++) {
+//    const intervalId = setInterval(fillPixels, 0);
+//    intervals.push(intervalId);
+//  }
+//}
