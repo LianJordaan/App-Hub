@@ -1,16 +1,23 @@
+/* Reset default margin and padding of body element */
 body {
   margin: 0;
   padding: 0;
 }
 
+/* Set canvas to be a block-level element and center it horizontally */
 canvas {
   display: block;
   margin: 0 auto;
+  
+  /* Set the background color to black */
   background-color: #000;
+  
+  /* Set canvas to fill the width of the viewport and calculate its height to be the remaining viewport height minus 50px for the options bar */
   width: 100vw;
-  height: calc(100vh - 50px); /* leave 60px for options */
+  height: calc(100vh - 50px);
 }
 
+/* Set the options bar to be a flex container with centered items and a white background */
 .options {
   display: flex;
   align-items: center;
@@ -21,6 +28,7 @@ canvas {
   max-width: 100vw;
 }
 
+/* Add margin to the right of each label element within the options bar */
 label {
   margin-right: 10px;
 }
