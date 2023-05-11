@@ -8,10 +8,10 @@ body {
 canvas {
   display: block;
   margin: 0 auto;
-  
+
   /* Set the background color to black */
   background-color: #000;
-  
+
   /* Set canvas to fill the width of the viewport and calculate its height to be the remaining viewport height minus 50px for the options bar */
   width: 100vw;
   height: calc(100vh - 50px);

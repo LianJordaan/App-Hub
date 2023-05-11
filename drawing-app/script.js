@@ -17,26 +17,26 @@ function draw(event) {
     context.strokeStyle = `hsl(${hue}, 100%, 50%)`;
   } else {
     context.strokeStyle = document.getElementById('color-picker').value;
-  }  
+  }
   context.lineWidth = document.getElementById('brush-size').valueAsNumber;
   context.lineJoin = 'round';
   context.lineCap = 'round';
-  
+
   const rect = canvas.getBoundingClientRect();
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
-  
+
   context.beginPath();
   context.moveTo(lastX, lastY);
   context.lineTo(mouseX, mouseY);
   context.stroke();
-  
+
   [lastX, lastY] = [mouseX, mouseY];
   if (document.getElementById('rainbow-mode').checked) {
     if (document.getElementById('rainbow-type').value == "draw") {
-        hue += 1;
-        if (hue >= 360) hue = 0;
-    }    
+      hue += 1;
+      if (hue >= 360) hue = 0;
+    }
   }
 }
 
@@ -64,36 +64,36 @@ brushSizes.forEach((button) => {
 
 
 setInterval(() => {
-    if (document.getElementById('rainbow-mode').checked) {
-        const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
-        elementsToHide.forEach(element => {
-          element.hidden = true;
-        });
-        const elementsToShow = document.querySelectorAll('.rainbowmode-show');
-        elementsToShow.forEach(element => {
-          element.hidden = false;
-        });
-    } else {
-        const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
-        elementsToHide.forEach(element => {
-          element.hidden = false;
-        });
-        const elementsToShow = document.querySelectorAll('.rainbowmode-show');
-        elementsToShow.forEach(element => {
-          element.hidden = true;
-        });
-    }
-    if (document.getElementById('rainbow-type').value == "constant" && document.getElementById('rainbow-mode').checked){
-        const elementsToShow = document.querySelectorAll('.rainbowmode-constant-show');
-        elementsToShow.forEach(element => {
-          element.hidden = false;
-        });
-    } else {
-        const elementsToShow = document.querySelectorAll('.rainbowmode-constant-show');
-        elementsToShow.forEach(element => {
-          element.hidden = true;
-        });
-    }
+  if (document.getElementById('rainbow-mode').checked) {
+    const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
+    elementsToHide.forEach(element => {
+      element.hidden = true;
+    });
+    const elementsToShow = document.querySelectorAll('.rainbowmode-show');
+    elementsToShow.forEach(element => {
+      element.hidden = false;
+    });
+  } else {
+    const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
+    elementsToHide.forEach(element => {
+      element.hidden = false;
+    });
+    const elementsToShow = document.querySelectorAll('.rainbowmode-show');
+    elementsToShow.forEach(element => {
+      element.hidden = true;
+    });
+  }
+  if (document.getElementById('rainbow-type').value == "constant" && document.getElementById('rainbow-mode').checked) {
+    const elementsToShow = document.querySelectorAll('.rainbowmode-constant-show');
+    elementsToShow.forEach(element => {
+      element.hidden = false;
+    });
+  } else {
+    const elementsToShow = document.querySelectorAll('.rainbowmode-constant-show');
+    elementsToShow.forEach(element => {
+      element.hidden = true;
+    });
+  }
 }, 100);
 
 
@@ -101,23 +101,22 @@ let intervalId;
 let rainbowSpeed;
 
 
-const startInterval = () => intervalId = setInterval(() => { 
-    if (document.getElementById('rainbow-mode').checked) {
-        if (document.getElementById('rainbow-type').value == "constant") {
-            hue += 1;
-            if (hue >= 360) hue = 0;
-        }    
-    } 
+const startInterval = () => intervalId = setInterval(() => {
+  if (document.getElementById('rainbow-mode').checked) {
+    if (document.getElementById('rainbow-type').value == "constant") {
+      hue += 1;
+      if (hue >= 360) hue = 0;
+    }
+  }
 }, rainbowSpeed);
 
 const stopInterval = () => clearInterval(intervalId);
 
 document.getElementById('rainbow-speed').addEventListener('change', () => {
-    stopInterval();
-    rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber
+  stopInterval();
+  rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber
   startInterval();
 });
 
 rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber
 startInterval();
-
