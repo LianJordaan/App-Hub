@@ -53,10 +53,6 @@ canvas.addEventListener('mouseup', () => {
   isDrawing = false;
 });
 
-canvas.addEventListener('mouseout', () => {
-  isDrawing = false;
-});
-
 // Brush size options
 const brushSizes = document.querySelectorAll('.brush-size button');
 
