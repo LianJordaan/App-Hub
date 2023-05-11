@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Drawing App</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div class="options">
+      <label for="brush-size" style="margin-left: 1vw; margin-right: 0.1vw;">Brush Size:</label>
+      <input type="range" id="brush-size" min="1" max="200" value="10">
+      <label for="color-picker" style="margin-left: 1vw; margin-right: 0.1vw;" class="rainbowmode-hide">Color:</label>
+      <input type="color" id="color-picker" value="#ff0000" class="rainbowmode-hide">
+      <label for="rainbow-mode" style="margin-left: 1vw; margin-right: 0.1vw;">Rainbow Mode:</label>
+      <input type="checkbox" id="rainbow-mode">
+      <label for="rainbow-mode" style="margin-left: 1vw; margin-right: 0.1vw;" class="rainbowmode-show">Rainbow Type:</label>
+      <select id="rainbow-type" class="rainbowmode-show">
+        <option value="constant">Constant Rainbow</option>
+        <option value="draw">Rainbow on Draw</option>
+      </select>
+
+      <label for="rainbow-speed" style="margin-left: 1vw; margin-right: 0.1vw;" class="rainbowmode-constant-show">Rainbow Speed:</label>
+      <input type="range" id="rainbow-speed" min="0" max="200" value="100" class="rainbowmode-constant-show">
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

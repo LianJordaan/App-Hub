@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  background-color: #000;
+  width: 100vw;
+  height: calc(100vh - 60px); /* leave 60px for options */
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  background-color: #fff;
+  width: 100vw;
+  max-width: 100vw;
+}
+
+label {
+  margin-right: 10px;
+}
