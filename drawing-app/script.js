@@ -8,7 +8,7 @@ let hue = 0;
 let lineWidth = 10;
 
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight - (window.innerHeight * 0.1);
+canvas.height = window.innerHeight - 50;
 
 function draw(event) {
   if (!isDrawing) return;
@@ -44,6 +44,7 @@ function draw(event) {
 canvas.addEventListener('mousedown', (event) => {
   isDrawing = true;
   [lastX, lastY] = [event.clientX, event.clientY];
+  draw(event);
 });
 
 canvas.addEventListener('mousemove', draw);
