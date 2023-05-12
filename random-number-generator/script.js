@@ -39,7 +39,9 @@ function getRandomNumber(min, max, decimal) {
   for(let i = 0; i < decimal; i++) {
       decimals.push(Math.floor(Math.random() * 10).toString());
   }
-  decimals = `.${decimals.join("")}`;
+  if (decimalInput.valueAsNumber != 0) {
+    decimals = `.${decimals.join("")}`;
+  }
   return (Math.floor(Math.random() * max-min+1) + min).toString() + decimals;
 }
 
