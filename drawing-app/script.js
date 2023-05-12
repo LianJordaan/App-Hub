@@ -58,15 +58,20 @@ function draw(event) {
 
 // Set up event listeners for mouse down, move, and up
 canvas.addEventListener('mousedown', (event) => {
-  isDrawing = true;
-  [lastX, lastY] = [event.clientX, event.clientY];
-  draw(event);
+  if (event.button === 0) {
+    isDrawing = true;
+    [lastX, lastY] = [event.clientX, event.clientY];
+    draw(event);
+  }  
 });
 
 canvas.addEventListener('mousemove', draw);
 
-canvas.addEventListener('mouseup', () => {
-  isDrawing = false;
+canvas.addEventListener('mouseup', (event) => {
+  saveState();
+  if (event.button === 0) {
+    isDrawing = false;
+  }  
 });
 
 // Set up an interval that updates the UI based on rainbow mode and type
