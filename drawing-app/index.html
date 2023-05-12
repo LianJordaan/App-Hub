@@ -13,6 +13,18 @@
     <canvas id="canvas"></canvas>
     <!-- Create a div with class "options" to hold drawing options -->
     <div class="options">
+      <!-- add a button element with an id of "download-btn" -->
+      <button id="download-btn" style="margin-left: 1vw; margin-right: 0.1vw;">Download Image</button>
+
+      <input type="file" id="imgLoader" name="imgLoader" accept="image/*" style="display:none" />
+      <button id="import-btn">Import Image</button>
+      <button id="undo-btn" style="margin-left: 0.25vw; margin-right: 0.1vw;">
+        <img src="../assets/undo.svg" class="undo-redo-button" alt="Undo">
+      </button>
+      
+      <button id="redo-btn" style="margin-left: 0.25vw; margin-right: 0.1vw;">
+        <img src="../assets/redo.svg" class="undo-redo-button" alt="Redo">
+      </button>
       <!-- Create a label for brush size input -->
       <label for="brush-size" style="margin-left: 1vw; margin-right: 0.1vw;">Brush Size:</label>
       <!-- Create an input element of type range with an ID of "brush-size" and min, max, and default values -->
