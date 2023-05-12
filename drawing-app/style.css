@@ -21,7 +21,6 @@ canvas {
 .options {
   display: flex;
   align-items: center;
-  justify-content: center;
   height: 50px;
   background-color: #fff;
   width: 100vw;
