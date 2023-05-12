@@ -222,3 +222,111 @@ startInterval();
 //    intervals.push(intervalId);
 //  }
 //}
+
+
+// get a reference to the download button
+const downloadBtn = document.getElementById("download-btn");
+
+// add a click event listener to the button
+downloadBtn.addEventListener("click", function() {
+  // get a reference to the canvas element
+  const canvas = document.getElementById("canvas");
+
+  // create a temporary link element
+  const link = document.createElement("a");
+
+  // set the link's href attribute to the data URL of the canvas image
+  link.href = canvas.toDataURL();
+
+  // set the link's download attribute to the filename you want to save the image as
+  link.download = "download.png";
+
+  // add the link to the DOM
+  document.body.appendChild(link);
+
+  // click the link to trigger the download
+  link.click();
+
+  // remove the link from the DOM
+  document.body.removeChild(link);
+});
+
+
+const importBtn = document.querySelector('#import-btn');
+const imgLoader = document.querySelector('#imgLoader');
+
+importBtn.addEventListener('click', () => {
+  imgLoader.click();
+});
+
+imgLoader.addEventListener('change', () => {
+  const file = imgLoader.files[0];
+
+  imgLoader.value = '';
+
+  const reader = new FileReader();
+
+  reader.addEventListener('load', () => {
+    const img = new Image();
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0);
+      saveState();
+    }
+    img.src = reader.result;
+  });
+
+  reader.readAsDataURL(file);
+});
+
+
+let undoStack = [];
+let redoStack = [];
+
+// Function to save the current canvas state
+function saveState() {
+  undoStack.push(canvas.toDataURL());
+}
+
+// Function to undo the last action
+function undo() {
+  if (undoStack.length > 1) {
+    redoStack.push(undoStack.pop());
+    const img = new Image();
+    img.src = undoStack[undoStack.length - 1];
+    img.onload = function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    }
+  }
+}
+
+// Function to redo the last undone action
+function redo() {
+  if (redoStack.length > 0) {
+    const img = new Image();
+    img.src = redoStack.pop();
+    img.onload = function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      undoStack.push(canvas.toDataURL());
+    }
+  }
+}
+
+// Save initial state
+saveState();
+
+// Attach undo and redo functions to buttons
+const undoBtn = document.querySelector('#undo-btn');
+const redoBtn = document.querySelector('#redo-btn');
+
+undoBtn.addEventListener('click', undo);
+redoBtn.addEventListener('click', redo);
+
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'z') {
+    undo();
+  } else if (e.ctrlKey && e.key === 'y') {
+    redo();
+  }
+});
