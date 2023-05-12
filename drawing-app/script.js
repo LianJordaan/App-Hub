@@ -15,6 +15,7 @@ canvas.height = window.innerHeight - 50;
 
 // Function that is called when the mouse moves on the canvas
 function draw(event) {
+  if (!event.buttons & 1) isDrawing = false;
   // If the mouse isn't currently being clicked, exit the function
   if (!isDrawing) return;
 
