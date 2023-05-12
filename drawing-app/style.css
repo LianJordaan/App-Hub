@@ -31,3 +31,28 @@ canvas {
 label {
   margin-right: 10px;
 }
+
+#download-btn, #import-btn {
+  background-color: #2196F3;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#download-btn:hover, #import-btn:hover {
+  background-color: #1e6add;
+}
+
+.undo-redo-button {
+  width: 20px;
+  height: 20px;
+  padding: 0px;
+  margin: 0px;
+}
