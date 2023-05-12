@@ -91,21 +91,6 @@ a:hover {
   color: #fff;
 }
 
-/* Header */
-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #333;
-  color: #fff;
-  padding: 10px 20px;
-}
-
-header h1 {
-  font-size: 32px;
-  letter-spacing: 2px;
-}
-
 /* Main Content */
 main {
   max-width: 1200px;
