@@ -13,6 +13,8 @@ let lineWidth = 10;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight - 50;
 
+canvas.willReadFrequently = true;
+
 // Function that is called when the mouse moves on the canvas
 function draw(event) {
   if (!event.buttons & 1) isDrawing = false;
