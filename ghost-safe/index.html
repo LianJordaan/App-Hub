@@ -5,6 +5,31 @@
     <title>GhostSafe</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="../assets/header.css">
+    <style>
+      .container {
+        text-align: center;
+      }
+      
+      .container p {
+        margin-bottom: 10px;
+        line-height: 0.5;
+      }
+      
+      .size-limit {
+        font-weight: bold;
+        color: #ff5f5f;
+      }
+      
+      .time-limit {
+        font-weight: bold;
+        color: #ff5f5f;
+      }
+      
+      .safe-secure {
+        font-weight: bold;
+        color: #00cc66;
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -12,7 +37,16 @@
       <h1>My Apps</h1>
     </header>
     <div class="container">
-      
+      <h2>GhostSafe</h2>
+      <p>Securely upload and share files.</p>
+      <p>Files are stored securely and remain available for <span class="time-limit">2 hours</span>.</p>
+      <p>There is a maximum file size limit of <span class="size-limit">1GB</span> for legal reasons.</p>
+      <p><span class="safe-secure">Your files are safe and secure with GhostSafe.</span></p>
+      <input type="file" id="file-input">
+      <progress id="upload-progress" value="0" max="100"></progress>
+      <button id="upload-btn">Upload</button>
+      <p id="status-message"></p>
+      <p id="download-link"></p>
     </div>
     <script src="script.js"></script>
   </body>
