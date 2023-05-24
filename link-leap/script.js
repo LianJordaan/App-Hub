@@ -1,5 +1,15 @@
 window.onload = function() {
-  const linkInputContainer = document.getElementById('link-input-container');
+  const params = new URLSearchParams(window.location.search);
+  const encodedURL = params.get('s');
+
+  if (encodedURL) {
+    try {
+      const decodedURL = atob(encodedURL);
+      window.location.href = decodedURL;
+    } catch (error) {
+      displayErrorMessage('Failed to redirect to the specified URL.');
+    }
+  }
   const outputContainer = document.getElementById('output-container');
   const outputLink = document.getElementById('output-link');
 
@@ -13,7 +23,8 @@ window.onload = function() {
     const encodedLink = btoa(linkInput);
 
     // Create the final link with encoded parameters
-    const currentPage = window.location.href;
+    let currentPage = window.location.href;
+    currentPage = window.location.href.split('?')[0];
     const finalLink = `${currentPage}?s=${encodedLink}`;
 
     // Display the encoded link
@@ -21,6 +32,7 @@ window.onload = function() {
     outputContainer.style.display = 'block';
 
     copyToClipboard(finalLink);
+    displayErrorMessage("");
   });
 
   // Function to copy the text to the clipboard
@@ -33,9 +45,13 @@ window.onload = function() {
     document.body.removeChild(textarea);
   }
 
-  // Check if there are any URL parameters
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has('s')) {
-    linkInputContainer.style.display = 'block';
+  function displayErrorMessage(message) {
+    const errorMessage = document.getElementById('error-message');
+    errorMessage.textContent = message;
+    document.getElementById('link-input-container').style.display = 'flex';
+    errorMessage.style.display = 'flex';
+    if (message === '') {
+        errorMessage.style.display = 'none';  
+    }
   }
 };
