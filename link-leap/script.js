@@ -5,9 +5,15 @@ window.onload = function() {
   if (encodedURL) {
     try {
       const decodedURL = atob(encodedURL);
-      window.location.href = decodedURL;
+      if (decodedURL.startsWith('http')) {
+        window.location.href = decodedURL;
+      } else {
+        displayErrorMessage('Invalid URL format.');
+        updateURL(window.location.href.split('?')[0]);
+      }
     } catch (error) {
       displayErrorMessage('Failed to redirect to the specified URL.');
+      updateURL(window.location.href.split('?')[0]);
     }
   } else {
     displayErrorMessage('');
@@ -25,8 +31,7 @@ window.onload = function() {
     const encodedLink = btoa(linkInput);
 
     // Create the final link with encoded parameters
-    let currentPage = window.location.href;
-    currentPage = window.location.href.split('?')[0];
+    const currentPage = window.location.href.split('?')[0];
     const finalLink = `${currentPage}?s=${encodedLink}`;
 
     // Display the encoded link
@@ -45,6 +50,10 @@ window.onload = function() {
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
+  }
+  
+  function updateURL(url) {
+    history.pushState({}, '', url);
   }
 
   function displayErrorMessage(message) {
