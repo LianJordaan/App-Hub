@@ -9,6 +9,8 @@ window.onload = function() {
     } catch (error) {
       displayErrorMessage('Failed to redirect to the specified URL.');
     }
+  } else {
+    displayErrorMessage('');
   }
   const outputContainer = document.getElementById('output-container');
   const outputLink = document.getElementById('output-link');
