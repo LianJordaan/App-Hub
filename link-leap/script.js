@@ -2,7 +2,6 @@ window.onload = function() {
   const linkInputContainer = document.getElementById('link-input-container');
   const outputContainer = document.getElementById('output-container');
   const outputLink = document.getElementById('output-link');
-  const copyButton = document.getElementById('copy-button');
 
   const encodeButton = document.getElementById('encode-button');
 
@@ -21,17 +20,7 @@ window.onload = function() {
     outputLink.value = finalLink;
     outputContainer.style.display = 'block';
 
-    // Show the copy button
-    copyButton.style.display = 'block';
-
     copyToClipboard(finalLink);
-  });
-
-  copyButton.addEventListener('click', function() {
-    const linkToCopy = outputLink.value;
-
-    // Copy the link to the clipboard
-    copyToClipboard(linkToCopy);
   });
 
   // Function to copy the text to the clipboard
