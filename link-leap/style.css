@@ -1,0 +1,111 @@
+header button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #f44336;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+header button:hover {
+  background-color: #c41b18;
+}
+
+body {
+  background-color: #121212;
+  color: #fff;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.container {
+  height: 65vh;
+  max-width: 90vw;
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 10vh;
+  margin-bottom: 10vh;
+  background-color: #2c2c2c;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+#error-message {
+  color: #f44336;
+  font-weight: bold;
+  display: none;
+}
+
+#link-input-container {
+  margin-bottom: 20px;
+  display: none;
+}
+
+#link-input {
+  padding: 5px;
+  margin-right: 10px;
+  width: 300px;
+}
+
+#encode-button {
+  display: none;
+  font-weight: bold;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #2196F3;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+#encode-button:hover {
+  background-color: #1976D2;
+}
+
+
+#output-link{
+  display: none;
+}
+
+#output-link-container{
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#copy-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+#copy-button:hover {
+  background-color: #45a049;
+}
