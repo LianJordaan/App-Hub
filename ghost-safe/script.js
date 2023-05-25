@@ -17,7 +17,7 @@ function uploadFile(event) {
   }
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://extreme-steadfast-tire.glitch.me/?url=http://51.222.166.68:8183/upload');
+  xhr.open('POST', 'https://webprox.glitch.me/?url=http://51.222.166.68:8183/upload');
   xhr.setRequestHeader('Content-Type', 'application/octet-stream');
   xhr.setRequestHeader('Content-Disposition', 'attachment; filename="' + file.name + '"');
   
