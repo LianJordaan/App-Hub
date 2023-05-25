@@ -16,7 +16,7 @@ function uploadFile(event) {
     return;
   }
 
-  const proxyUrl = 'http://37.228.65.107:32052';
+  const proxyUrl = 'https://198.24.187.93:8001';
   const xhr = new XMLHttpRequest();
   xhr.open('POST', 'http://51.222.166.68:8183/upload');
   xhr.setRequestHeader('Content-Type', 'application/octet-stream');
