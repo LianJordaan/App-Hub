@@ -16,24 +16,23 @@ function uploadFile(event) {
     return;
   }
 
-  const proxyUrl = 'https://198.24.187.93:8001';
   const xhr = new XMLHttpRequest();
   xhr.open('POST', 'http://51.222.166.68:8183/upload');
   xhr.setRequestHeader('Content-Type', 'application/octet-stream');
   xhr.setRequestHeader('Content-Disposition', 'attachment; filename="' + file.name + '"');
-  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-  xhr.proxy = proxyUrl; // Set the proxy
+  
+  fileInput.style.display = 'none';
 
   xhr.upload.addEventListener('progress', updateProgress);
 
-  xhr.onreadystatechange = function () {
+  xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       showResponse('File uploaded successfully', xhr.responseText);
       showUploadMoreButton();
     }
   };
 
-  xhr.onerror = function () {
+  xhr.onerror = function() {
     showResponse('Failed to upload file', null);
     showTryAgainButton();
     resetProgressBar();
