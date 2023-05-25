@@ -89,4 +89,3 @@ function showTryAgainButton() {
 function resetProgressBar() {
   progress.value = 0;
 }
-  
