@@ -104,3 +104,18 @@ main {
   flex-wrap: wrap;
   justify-content: space-around;
 }
+
+.search-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+#search-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  width: 200px;
+}
