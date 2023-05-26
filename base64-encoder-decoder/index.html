@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Base64 Encoder/Decoder</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+      <h1>My Apps</h1>
+    </header>
+    <div class="container">
+      <h2>Base64 Encoder/Decoder</h2>
+      <p>An app for encoding and decoding Base64 strings.</p>
+      <div class="input-container">
+        <textarea id="input-text" placeholder="Enter the text"></textarea>
+      </div>
+      <div class="option-container">
+        <label>
+          <input type="radio" name="option" value="encode" checked> Encode
+        </label>
+        <label>
+          <input type="radio" name="option" value="decode"> Decode
+        </label>
+      </div>
+      <div class="output-container">
+        <textarea id="output-text" readonly></textarea>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
