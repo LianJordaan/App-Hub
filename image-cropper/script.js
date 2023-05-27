@@ -125,4 +125,3 @@ setInterval(function() {
   imageOverlay.style.height = y2 + "px";
   imageOverlay.style.width = x2 + "px";
 }, 1);
-
