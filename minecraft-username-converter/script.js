@@ -67,4 +67,3 @@ inputText.addEventListener('keydown', function(event) {
     }, 500);
   }
 });
-
