@@ -28,3 +28,43 @@ function convertUsername() {
       outputContainer.style.display = 'block';
     });
 }
+
+window.onload = function() {
+  const params = new URLSearchParams(window.location.search);
+  const query = params.get('q');
+  if (query) {
+    document.getElementById('inputText').value = query;
+    convertUsername();
+  }
+}
+
+function updateURL(url) {
+  history.pushState({}, '', url);
+}
+
+const inputText = document.getElementById('inputText');
+
+inputText.addEventListener('input', function(event) {
+  const inputValue = event.target.value;
+  if (inputValue !== "") {
+    updateURL(window.location.href.split('?')[0] + "?q=" + inputValue);
+  } else {
+    updateURL(window.location.href.split('?')[0]);
+  }
+});
+
+let timerId = null;
+
+inputText.addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+
+    timerId = setTimeout(function() {
+      convertUsername();
+      timerId = null;
+    }, 500);
+  }
+});
+
