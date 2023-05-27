@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Image Cropper</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+      <h1>My Apps</h1>
+    </header>
+    <div class="container">
+      <h2 class="image-cropper-title">Image Cropper</h2>
+      <div class="left-section">
+        <div class="image-container">
+          <div class="input-section">
+            <label for="imageInput">Select an image:</label>
+            <input type="file" id="imageInput" accept="image/*">
+          </div>
+          <img id="imagePreview" src="#" alt="Selected Image">
+          <div class="image-overlay"></div>
+        </div>
+      </div>
+      <div class="center-section">
+        <div class="crop-controls">
+          <h3>Crop Coordinates</h3>
+          <div class="crop-inputs">
+            <div class="input-group">
+              <label for="x1">x1:</label>
+              <input type="number" id="x1" min="0" step="1">
+            </div>
+            <div class="input-group">
+              <label for="y1">y1:</label>
+              <input type="number" id="y1" min="0" step="1">
+            </div>
+            <div class="input-group">
+              <label for="x2">x2:</label>
+              <input type="number" id="x2" min="0" step="1">
+            </div>
+            <div class="input-group">
+              <label for="y2">y2:</label>
+              <input type="number" id="y2" min="0" step="1">
+            </div>
+          </div>
+          <button onclick="cropImage()">Crop</button>
+        </div>
+      </div>
+      <div class="right-section">
+        <div class="cropped-image" id="croppedImageContainer">
+          <h3>Cropped Image</h3>
+          <img id="croppedImage" src="#" alt="Cropped Image">
+          <a id="downloadLink" download>Download</a>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
