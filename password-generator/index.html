@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Password Generator</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+      <h1>App Hub</h1>
+    </header>
+    <div class="container">
+      <h2>Password Generator</h2>
+      <div class="form-group">
+        <label for="lengthSlider">Password Length:</label>
+        <input type="range" id="lengthSlider" min="1" max="1500" value="12">
+        <input type="number" id="lengthInput" min="1" max="1500" value="12">
+      </div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" checked=true id="symbolsCheckbox">Symbols</label>
+        <label><input type="checkbox" checked=true id="numbersCheckbox">Numbers</label>
+        <label><input type="checkbox" checked=true id="uppercaseCheckbox">Uppercase</label>
+        <label><input type="checkbox" checked=true id="lowercaseCheckbox">Lowercase</label>
+      </div>
+      <button class="green" id="generateButton">Generate Password</button>
+      <button class="green" id="copyButton">Copy Password</button>
+      <button class="red" id="resetButton">Reset</button>
+      <div class="form-group">
+        <textarea type="text" id="passwordOutput" readonly></textarea>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
