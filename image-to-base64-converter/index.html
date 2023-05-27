@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Image to Base64 Converter</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+      <h1>My Apps</h1>
+    </header>
+    <div class="container">
+      <h2>Image to Base64 Converter</h2>
+      <p>Select an image file and convert it to Base64 format.</p>
+      <div class="converter">
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="convertToBase64()">Convert</button>
+        <div id="outputContainer" style="display: none;">
+          <label for="outputText">Base64 Image:</label>
+          <textarea id="outputText" readonly></textarea>
+          <div class="copy-buttons">
+            <button onclick="copyImage()">Copy Image</button>
+            <button onclick="copyCSS()">Copy CSS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
