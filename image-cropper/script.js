@@ -117,8 +117,8 @@ setInterval(function() {
   let scaleY = imagePreview.naturalHeight / imagePreview.clientHeight;
   let y1 = (imagePreview.y + (parseInt(y1Input.value) / scaleY));
   let x1 = (imagePreview.x + (parseInt(x1Input.value) / scaleX));
-  let y2 = (imagePreview.y + (parseInt(y2Input.value) / scaleY)) - y1 + 5;
-  let x2 = (imagePreview.x + (parseInt(x2Input.value) / scaleX)) - x1 + 5;
+  let y2 = (imagePreview.y + (parseInt(y2Input.value) / scaleY)) - y1;
+  let x2 = (imagePreview.x + (parseInt(x2Input.value) / scaleX)) - x1;
   
   imageOverlay.style.top = y1 + "px";
   imageOverlay.style.left = x1 + "px";
