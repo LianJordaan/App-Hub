@@ -23,6 +23,7 @@ body {
 }
 
 .container {
+  text-align: center;
   height: 65vh;
   max-width: 90vw;
   margin: 0 auto;
@@ -118,4 +119,24 @@ a.download-link:hover {
 
 #download-link {
   font-weight: bold;
+}
+
+.container p {
+  margin-bottom: 10px;
+  line-height: 0.5;
+}
+
+.size-limit {
+  font-weight: bold;
+  color: #ff5f5f;
+}
+
+.time-limit {
+  font-weight: bold;
+  color: #ff5f5f;
+}
+
+.safe-secure {
+  font-weight: bold;
+  color: #00cc66;
 }
