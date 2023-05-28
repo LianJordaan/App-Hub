@@ -14,6 +14,11 @@ textArea.addEventListener('input', generateQRCode);
 // Function to generate the QR code
 function generateQRCode() {
   const text = textArea.value;
+  if (text !== "") {
+    updateURL(window.location.href.split('?')[0] + "?data=" + btoa(text));
+  } else {
+    updateURL(window.location.href.split('?')[0]);
+  }
 
   if (text.trim() === '') {
     qrCodeContainer.innerHTML = ''; // Clear the QR code container if the text is empty
@@ -75,5 +80,15 @@ downloadButton2.addEventListener('click', async () => {
   URL.revokeObjectURL(url);
 });
 
-// Initial call to generate the QR code
-generateQRCode();
+function updateURL(url) {
+  history.pushState({}, '', url);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  let data = params.get('data');
+  if (data) {
+    textArea.value = atob(data);
+  }
+  generateQRCode();
+});
