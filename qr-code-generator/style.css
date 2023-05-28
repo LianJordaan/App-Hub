@@ -1,0 +1,151 @@
+header button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #f44336;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+header button:hover {
+  background-color: #c41b18;
+}
+
+body {
+  background-color: #121212;
+  color: #fff;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.container {
+  height: 65vh;
+  max-width: 90vw;
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 10vh;
+  margin-bottom: 10vh;
+  background-color: #2c2c2c;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+textarea, input[type="number"], input[type="color"] {
+  width: 100%;
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  background-color: #424242;
+  color: #fff;
+  resize: none;
+}
+
+.options {
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.checkbox-label {
+  margin-right: 10px;
+}
+
+#sizeInput {
+  width: 60px;
+}
+
+#colorInput {
+  width: 40px;
+}
+
+#generateButton {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-top: 10px;
+  border: none;
+  background-color: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+#generateButton:hover {
+  background-color: #45a049;
+}
+
+#qrCodeContainer {
+  margin-top: 20px;
+}
+
+#qrCodeImage {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+#downloadButton, #downloadButton2 {
+  display: block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+#downloadButton:hover, #downloadButton2:hover {
+  background-color: #0056b3;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+}
+
+.buttons button {
+  margin-right: 10px;
+  flex: 1;
+}
+
+#downloadButton{
+  flex: 2;
+}
+
+#downloadButton2{
+  flex: 2;
+  margin-left: 10px;
+}
+
