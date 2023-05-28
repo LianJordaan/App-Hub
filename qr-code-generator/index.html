@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>QR Code Generator</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+      <h1>App Hub</h1>
+    </header>
+    <div class="container">
+      <h2>QR Code Generator</h2>
+      <div class="form-group">
+        <label for="textArea">Text Input:</label>
+        <textarea id="textArea" rows="4" cols="50" placeholder="Enter the text"></textarea>
+      </div>
+      <div class="buttons">
+        <button id="generateButton">Generate QR Code</button>
+        <a id="downloadButton" download="qrcode.png">Download QR Code PNG</a>
+        <a id="downloadButton2" download="qrcode.svg">Download QR Code SVG</a>
+      </div>
+      <div id="qrCodeContainer">
+      </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="qrcode.min.js"></script>
+  </body>
+</html>
