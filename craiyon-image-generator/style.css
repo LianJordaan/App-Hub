@@ -1,0 +1,100 @@
+header button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #f44336;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  width: 100vw;
+}
+
+header button:hover {
+  background-color: #c41b18;
+}
+
+body {
+  background-color: #121212;
+  color: #fff;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 90vw;
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 15vh;
+  margin-bottom: 10vh;
+  background-color: #2c2c2c;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+#generatedImages,
+#upscaledImage {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#generatedImages img,
+#upscaledImage img {
+  width: 128px;
+  margin: 10px;
+}
+
+#upscaledImage img {
+  width: 512px;
+}
+
+.placeholder {
+  color: gray;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.timer {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.customContextMenu {
+  position: fixed;
+  display: none;
+  background-color: #121212;
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+
+.customContextMenu ul {
+  color: #fff;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.customContextMenu li {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.customContextMenu li:hover {
+  background-color: #242424;
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Craiyon Image Generator</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <header>
+    <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+    <h1>App Hub</h1>
+  </header>
+  <div class="container">
+    <h2>Craiyon Image Generator</h2>
+
+    <div id="imageGenerator">
+      <label for="promptInput">Enter a prompt:</label>
+      <input type="text" id="promptInput">
+      <label for="modelSelect">Select a model:</label>
+      <select id="modelSelect">
+        <option value="art">Art</option>
+        <option value="drawing">Drawing</option>
+        <option value="photo">Photo</option>
+        <option value="none">None</option>
+      </select>
+      <button onclick="generateImage()">Generate Image</button>
+      <div class="placeholder">Estimated time: about 1 min</div>
+      <div class="timer" id="timer"></div>
+
+      <div id="generatedImages"></div>
+    </div>
+
+    <h2>Image Upscaler</h2>
+
+    <div id="imageUpscaler">
+      <label for="imageURLInput">Enter an image URL to upscale:</label>
+      <input type="text" id="imageURLInput">
+      <button onclick="upscaleImage()">Upscale Image</button>
+      <div class="placeholder">Estimated time: about 1 min</div>
+      <div class="timer" id="upscaleTimer"></div>
+    
+      <div id="upscaledImage"></div>
+    </div>
+  </div>
+  <!-- Context menu for generated images -->
+  <div id="generatedContextMenu" class="customContextMenu" style="display: none;">
+    <ul>
+      <li id="saveGeneratedImage">Save Image</li>
+      <li id="openGeneratedImage">Open Image</li>
+      <li id="saveAllGeneratedImages">Save All Images</li>
+      <li id="upscaleGeneratedImage">Upscale Image</li>
+      <li id="upscaleAllGeneratedImages">Upscale All Images</li>
+      <li id="removeGeneratedImage" style="color: red;">Remove Generated Image</li>
+      <li id="removeAllGeneratedImages" style="color: red;">Remove All Generated Images</li>
+    </ul>
+  </div>
+
+  <!-- Context menu for upscaled images -->
+  <div id="upscaledContextMenu" class="customContextMenu" style="display: none;">
+    <ul>
+      <li id="saveUpscaledImage">Save Image</li>
+      <li id="openUpscaledImage">Open Image</li>
+      <li id="saveAllUpscaledImages">Save All Images</li>
+      <li id="removeUpscaledImage" style="color: red;">Remove Upscaled Image</li>
+      <li id="removeAllUpscaledImages" style="color: red;">Remove All Upscaled Images</li>
+    </ul>
+  </div>
+  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>  
+  <script src="../assets/FileSaver.js"></script>  
+</body>
+</html>
