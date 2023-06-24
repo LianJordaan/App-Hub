@@ -9,7 +9,7 @@ uploadBtn.addEventListener('click', uploadFile);
 function uploadFile(event) {
   event.preventDefault();
   const file = fileInput.files[0];
-  const maxSizeInBytes = 1000 * 1024 * 1024;
+  const maxSizeInBytes = 100 * 1000 * 1024 * 1024;
 
   if (file.size > maxSizeInBytes) {
     alert('File size exceeds the limit. Please select a smaller file.');
@@ -17,7 +17,7 @@ function uploadFile(event) {
   }
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://webprox.glitch.me/?url=http://51.222.166.68:8183/upload');
+  xhr.open('POST', 'https://webprox.glitch.me/?url=http://88.198.50.41:25833/upload');
   xhr.setRequestHeader('Content-Type', 'application/octet-stream');
   xhr.setRequestHeader('Content-Disposition', 'attachment; filename="' + file.name + '"');
   
