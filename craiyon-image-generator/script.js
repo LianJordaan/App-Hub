@@ -397,7 +397,7 @@ function saveImage(imageURL) {
 
 // Helper function to open an image
 function openImage(imageURL) {
-  window.open(imageURL, "_blank");
+  window.open(imageURL.replace("https://webprox.glitch.me/?url=", ""), "_blank");
 }
 
 // Helper function to save all generated images
