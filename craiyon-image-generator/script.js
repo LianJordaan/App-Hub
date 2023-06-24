@@ -65,7 +65,7 @@ function generateImage() {
       data.images.forEach(function (imageURL) {
         var img = document.createElement("img");
         img.src =
-          "https://webprox.glitch.me/?url=https://img.craiyon.com/" + imageURL;
+          "https://img.craiyon.com/" + imageURL;
           img.addEventListener("contextmenu", function (event) {
             event.preventDefault();
             displayGeneratedContextMenu(event, img);
@@ -91,7 +91,7 @@ function generateImage() {
     if (target.tagName === "IMG") {
       var imageURL = target.src;
       var modifiedURL = imageURL
-        .replace("https://webprox.glitch.me/?url=https://", "")
+        .replace("https://", "")
       document.getElementById("imageURLInput").value = modifiedURL;
     }
   });
@@ -146,7 +146,7 @@ function upscaleImage() {
       data.images.forEach(function (imageURL) {
         var img = document.createElement("img");
         img.src =
-          "https://webprox.glitch.me/?url=https://pics.craiyon.com/" + imageURL;
+          "https://pics.craiyon.com/" + imageURL;
           img.addEventListener("contextmenu", function (event) {
             event.preventDefault();
             displayUpscaledContextMenu(event, img);
@@ -397,7 +397,7 @@ function saveImage(imageURL) {
 
 // Helper function to open an image
 function openImage(imageURL) {
-  window.open(imageURL.replace("https://webprox.glitch.me/?url=", ""), "_blank");
+  window.open(imageURL.replace("", ""), "_blank");
 }
 
 // Helper function to save all generated images
@@ -419,7 +419,7 @@ function saveAllGeneratedImages() {
 function upscaleGeneratedImage(imageURL) {
   var timerLabel = "Timer " + getAvailableUpscaleTimerId() + ":";
   var timerId = "upscaleTimer" + getAvailableUpscaleTimerId();
-  imageURL = imageURL.replace("https://webprox.glitch.me/?url=https://", "");
+  imageURL = imageURL.replace("https://", "");
   var promptInput = document.getElementById("promptInput").value;
   var modelSelect = document.getElementById("modelSelect").value;
 
@@ -465,7 +465,7 @@ function upscaleGeneratedImage(imageURL) {
       data.images.forEach(function (imageURL) {
         var img = document.createElement("img");
         img.src =
-          "https://webprox.glitch.me/?url=https://pics.craiyon.com/" + imageURL;
+          "https://pics.craiyon.com/" + imageURL;
           img.addEventListener("contextmenu", function (event) {
             event.preventDefault();
             displayUpscaledContextMenu(event, img);
@@ -493,7 +493,7 @@ function upscaleAllGeneratedImages() {
   var generatedImages = document.getElementById("generatedImages").querySelectorAll("img");
 
   generatedImages.forEach(function (img) {
-    var imageURL = img.src.replace("https://webprox.glitch.me/?url=https://", "");
+    var imageURL = img.src.replace("https://", "");
     upscaleGeneratedImage(imageURL);
   });
 }
