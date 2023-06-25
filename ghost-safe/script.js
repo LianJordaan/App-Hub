@@ -6,6 +6,15 @@ const downloadLink = document.getElementById('download-link');
 
 uploadBtn.addEventListener('click', uploadFile);
 
+function copyToClipboard(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+}
+
 function uploadFile(event) {
   event.preventDefault();
   const file = fileInput.files[0];
@@ -27,6 +36,7 @@ function uploadFile(event) {
 
   xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
+      copyToClipboard(xhr.responseText);
       showResponse('File uploaded successfully', xhr.responseText);
       showUploadMoreButton();
     }
