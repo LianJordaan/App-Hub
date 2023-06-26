@@ -18,7 +18,7 @@ function copyToClipboard(text) {
 function uploadFile(event) {
   event.preventDefault();
   const file = fileInput.files[0];
-  const maxSizeInBytes = 100 * 1000 * 1024 * 1024;
+  const maxSizeInBytes = 1 * 1000 * 1024 * 1024;
 
   if (file.size > maxSizeInBytes) {
     alert('File size exceeds the limit. Please select a smaller file.');
