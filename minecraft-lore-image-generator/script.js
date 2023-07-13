@@ -34,8 +34,8 @@ function inputChanged() {
         createImageBitmap(file).then(bitmap => {
             // Figure out size
             const scale = Math.min(100 / bitmap.width, 100 / bitmap.height)
-            const targetWidth = interpInt(5, bitmap.width * scale, quality/55);
-            const targetHeight = interpInt(5, bitmap.height * scale, quality/55);
+            const targetWidth = interpInt(5, bitmap.width * scale, quality/70);
+            const targetHeight = interpInt(5, bitmap.height * scale, quality/70);
             
             // Create canvas with size
             const canvas = document.createElement("canvas");
