@@ -47,7 +47,7 @@ function generateImage() {
     negative_prompt: ""
   };
 
-  fetch("https://webprox.glitch.me/?url=https://api.craiyon.com/v3", {
+  fetch("https://api.craiyon.com/v3", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -128,7 +128,7 @@ function upscaleImage() {
     negative_prompt: ""
   };
 
-  fetch("https://webprox.glitch.me/?url=https://api.craiyon.com/upscale", {
+  fetch("https://api.craiyon.com/upscale", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -447,7 +447,7 @@ function upscaleGeneratedImage(imageURL) {
     negative_prompt: ""
   };
 
-  fetch("https://webprox.glitch.me/?url=https://api.craiyon.com/upscale", {
+  fetch("https://api.craiyon.com/upscale", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
