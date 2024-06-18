@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Minecraft XP Calculator</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../assets/header.css">
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='../index.html'"><img src="../assets/home.svg"></img></button>
+      <h1>App Hub</h1>
+    </header>
+    <div class="container">
+      <h2>Minecraft XP Calculator</h2>
+      <p>Enter your level to calculate the total XP needed.</p>
+      <input type="number" id="levelInput" placeholder="Enter level">
+      <button id="calculateBtn" onclick="calculateXP()">Calculate XP</button>
+      <p id="result"></p>
+      <h3>XP Levels Table</h3>
+      <input type="number" id="maxLevelInput" placeholder="Enter max level">
+      <button onclick="generateTable()">Generate Table</button>
+      <div id="xpTable" class="xp-table"></div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
