@@ -19,6 +19,9 @@ window.addEventListener('DOMContentLoaded', function() {
   if (searchTerm) {
     performSearch(searchTerm);
   }
+
+  updateTime(); // Initial call to display time immediately
+  setInterval(updateTime, 1000); // Update time every second
 });
 
 function performSearch(searchTerm) {
@@ -38,4 +41,18 @@ function performSearch(searchTerm) {
 
 function updateURL(url) {
   history.pushState({}, '', url);
+}
+
+// New code to update the time
+function updateTime() {
+  const now = new Date();
+  const options = {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+    timeZone: 'Africa/Johannesburg'
+  };
+  const timeString = now.toLocaleTimeString('en-GB', options);
+  document.getElementById('current-time').innerHTML = `My current time: <strong>${timeString}</strong>`;
 }
