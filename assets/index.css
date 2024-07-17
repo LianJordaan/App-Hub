@@ -91,6 +91,40 @@ a:hover {
   color: #fff;
 }
 
+.app-box.disabled {
+  background-color: #f5c6c6; /* Darker pink/red */
+  border-color: #f1b0b7; /* Slightly darker pink/red */
+  color: #721c24; /* Dark red */
+  position: relative; /* Ensure proper stacking context */
+}
+
+.app-box.disabled .reason {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 95%;
+  height: 100%;
+  padding: 10px;
+  background-color: #f5c6c6FF; /* Semi-transparent white */
+  color: #333; /* Dark text color */
+  z-index: 1;
+  pointer-events: none; /* Allows hovering over link */
+}
+
+.app-box.disabled:hover .reason {
+  display: block;
+}
+
+.app-box.disabled a {
+  color: #721c24; /* Dark red */
+  cursor: not-allowed;
+}
+
+.app-box.disabled a:hover {
+  text-decoration: none;
+}
+
 /* Main Content */
 main {
   max-width: 1200px;
