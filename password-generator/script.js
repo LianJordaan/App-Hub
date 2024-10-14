@@ -41,7 +41,7 @@ function copyPassword() {
   const passwordOutput = document.getElementById('passwordOutput');
   passwordOutput.select();
   document.execCommand('copy');
-  alert('Password copied to clipboard!');
+  // alert('Password copied to clipboard!');
 }
 
 // Add event listener to generate button
