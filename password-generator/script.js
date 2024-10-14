@@ -93,7 +93,7 @@ function updateCheckboxes() {
 // Initial call to ensure at least one checkbox is selected
 
 function updateURL(url) {
-  history.pushState({}, '', url);
+  history.replaceState({}, '', url);
 }
 
 function updateURLparams() {
