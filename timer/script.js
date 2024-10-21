@@ -8,22 +8,40 @@ let savedTime = {
   seconds: 0
 };
 let endTime; // Time when the timer should end
+let remainingTime; // Time left when paused or on return
 
 // Load saved timer values from cookies (including timer state)
 function loadTimerFromCookies() {
   const savedTimeData = JSON.parse(getCookie('timerData'));
+  const savedEndTime = getCookie('endTime');
+  const timerState = getCookie('timerState');
+  
   if (savedTimeData) {
     setTimer(savedTimeData);
     savedTime = savedTimeData;
-    const timerState = getCookie('timerState');
-    const savedEndTime = getCookie('endTime');
+
     if (savedEndTime) {
       endTime = new Date(savedEndTime);
-    }
+      const now = new Date();
+      const timeDifference = endTime - now; // Calculate the difference between end time and current time
+      if (timeDifference > 0) {
+        const secondsLeft = Math.floor(timeDifference / 1000);
+        const days = Math.floor(secondsLeft / (24 * 60 * 60));
+        const hours = Math.floor((secondsLeft % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((secondsLeft % (60 * 60)) / 60);
+        const seconds = secondsLeft % 60;
 
-    if (timerState === 'running') {
-      isPaused = false;
-      resumeTimerAfterReturn(); // Resume the timer based on the time elapsed
+        setTimer({ days, hours, minutes, seconds });
+        savedTime = { days, hours, minutes, seconds };
+        remainingTime = { days, hours, minutes, seconds };
+
+        if (timerState === 'running') {
+          isPaused = false;
+          startTimer(); // Automatically start the timer again based on the time left
+        }
+      } else {
+        setTimer({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
     }
   }
 }
@@ -32,8 +50,8 @@ function loadTimerFromCookies() {
 function updateTimerToCookies() {
   setCookie('timerData', JSON.stringify(savedTime), 1); // Save the timer state for 1 day
   setCookie('timerState', isPaused ? 'paused' : 'running', 1); // Save the running/paused state
-  if (!isPaused) {
-    setCookie('endTime', endTime, 1); // Save the end time when the timer is running
+  if (!isPaused && endTime) {
+    setCookie('endTime', endTime.toISOString(), 1); // Save the end time when the timer is running
   }
 }
 
@@ -109,7 +127,7 @@ function toggleTimer() {
 }
 
 function startTimer() {
-  let time = getTimer();
+  let time = isPaused && remainingTime ? remainingTime : getTimer();
   isPaused = false;
   document.getElementById('playPauseBtn').innerText = 'Pause';
 
@@ -124,9 +142,9 @@ function startTimer() {
 
   timerInterval = setInterval(() => {
     const now = new Date();
-    const remainingTime = endTime.getTime() - now.getTime();
+    const remainingTimeInMs = endTime - now;
 
-    if (remainingTime <= 0) {
+    if (remainingTimeInMs <= 0) {
       clearInterval(timerInterval);
       updateTimeDisplay(0, 0, 0, 0);
       isPaused = true;
@@ -134,7 +152,7 @@ function startTimer() {
       return;
     }
 
-    const secondsLeft = Math.floor(remainingTime / 1000);
+    const secondsLeft = Math.floor(remainingTimeInMs / 1000);
     const days = Math.floor(secondsLeft / (24 * 60 * 60));
     const hours = Math.floor((secondsLeft % (24 * 60 * 60)) / (60 * 60));
     const minutes = Math.floor((secondsLeft % (60 * 60)) / 60);
@@ -142,6 +160,7 @@ function startTimer() {
 
     updateTimeDisplay(days, hours, minutes, seconds);
     savedTime = { days, hours, minutes, seconds };
+    remainingTime = { days, hours, minutes, seconds }; // Keep track of the remaining time
     updateTimerToCookies();  // Save the timer and its state each second
   }, 1000);
 }
@@ -151,28 +170,6 @@ function pauseTimer() {
   clearInterval(timerInterval);
   document.getElementById('playPauseBtn').innerText = 'Play';
   updateTimerToCookies();  // Save the paused state
-}
-
-// Resume the timer based on how much time has passed since the user left
-function resumeTimerAfterReturn() {
-  const now = new Date();
-  const remainingTime = endTime.getTime() - now.getTime();
-
-  if (remainingTime <= 0) {
-    // Timer expired while the user was away
-    updateTimeDisplay(0, 0, 0, 0);
-    isPaused = true;
-    return;
-  }
-
-  const secondsLeft = Math.floor(remainingTime / 1000);
-  const days = Math.floor(secondsLeft / (24 * 60 * 60));
-  const hours = Math.floor((secondsLeft % (24 * 60 * 60)) / (60 * 60));
-  const minutes = Math.floor((secondsLeft % (60 * 60)) / 60);
-  const seconds = secondsLeft % 60;
-
-  setTimer({ days, hours, minutes, seconds });
-  startTimer();  // Automatically start the timer again
 }
 
 // Reset the timer to the last saved time
