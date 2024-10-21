@@ -7,6 +7,7 @@ let savedTime = {
   minutes: 0,
   seconds: 0
 };
+let endTime; // Time when the timer should end
 
 // Load saved timer values from cookies (including timer state)
 function loadTimerFromCookies() {
@@ -15,9 +16,14 @@ function loadTimerFromCookies() {
     setTimer(savedTimeData);
     savedTime = savedTimeData;
     const timerState = getCookie('timerState');
+    const savedEndTime = getCookie('endTime');
+    if (savedEndTime) {
+      endTime = new Date(savedEndTime);
+    }
+
     if (timerState === 'running') {
       isPaused = false;
-      startTimer();
+      resumeTimerAfterReturn(); // Resume the timer based on the time elapsed
     }
   }
 }
@@ -26,6 +32,9 @@ function loadTimerFromCookies() {
 function updateTimerToCookies() {
   setCookie('timerData', JSON.stringify(savedTime), 1); // Save the timer state for 1 day
   setCookie('timerState', isPaused ? 'paused' : 'running', 1); // Save the running/paused state
+  if (!isPaused) {
+    setCookie('endTime', endTime, 1); // Save the end time when the timer is running
+  }
 }
 
 // Set cookie helper
@@ -103,38 +112,36 @@ function startTimer() {
   let time = getTimer();
   isPaused = false;
   document.getElementById('playPauseBtn').innerText = 'Pause';
-  
+
+  // Set the end time based on the current time + remaining time
+  const now = new Date();
+  endTime = new Date(now.getTime() + (
+    ((time.days * 24 * 60 * 60) +
+    (time.hours * 60 * 60) +
+    (time.minutes * 60) +
+    time.seconds) * 1000
+  ));
+
   timerInterval = setInterval(() => {
-    // Decrease time
-    if (time.seconds === 0) {
-      if (time.minutes === 0) {
-        if (time.hours === 0) {
-          if (time.days === 0) {
-            clearInterval(timerInterval);
-            isPaused = true;
-            document.getElementById('playPauseBtn').innerText = 'Play';
-            return;
-          } else {
-            time.days--;
-            time.hours = 23;
-            time.minutes = 59;
-            time.seconds = 59;
-          }
-        } else {
-          time.hours--;
-          time.minutes = 59;
-          time.seconds = 59;
-        }
-      } else {
-        time.minutes--;
-        time.seconds = 59;
-      }
-    } else {
-      time.seconds--;
+    const now = new Date();
+    const remainingTime = endTime.getTime() - now.getTime();
+
+    if (remainingTime <= 0) {
+      clearInterval(timerInterval);
+      updateTimeDisplay(0, 0, 0, 0);
+      isPaused = true;
+      document.getElementById('playPauseBtn').innerText = 'Play';
+      return;
     }
-    
-    updateTimeDisplay(time.days, time.hours, time.minutes, time.seconds);
-    savedTime = { days: time.days, hours: time.hours, minutes: time.minutes, seconds: time.seconds };
+
+    const secondsLeft = Math.floor(remainingTime / 1000);
+    const days = Math.floor(secondsLeft / (24 * 60 * 60));
+    const hours = Math.floor((secondsLeft % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((secondsLeft % (60 * 60)) / 60);
+    const seconds = secondsLeft % 60;
+
+    updateTimeDisplay(days, hours, minutes, seconds);
+    savedTime = { days, hours, minutes, seconds };
     updateTimerToCookies();  // Save the timer and its state each second
   }, 1000);
 }
@@ -144,6 +151,28 @@ function pauseTimer() {
   clearInterval(timerInterval);
   document.getElementById('playPauseBtn').innerText = 'Play';
   updateTimerToCookies();  // Save the paused state
+}
+
+// Resume the timer based on how much time has passed since the user left
+function resumeTimerAfterReturn() {
+  const now = new Date();
+  const remainingTime = endTime.getTime() - now.getTime();
+
+  if (remainingTime <= 0) {
+    // Timer expired while the user was away
+    updateTimeDisplay(0, 0, 0, 0);
+    isPaused = true;
+    return;
+  }
+
+  const secondsLeft = Math.floor(remainingTime / 1000);
+  const days = Math.floor(secondsLeft / (24 * 60 * 60));
+  const hours = Math.floor((secondsLeft % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((secondsLeft % (60 * 60)) / 60);
+  const seconds = secondsLeft % 60;
+
+  setTimer({ days, hours, minutes, seconds });
+  startTimer();  // Automatically start the timer again
 }
 
 // Reset the timer to the last saved time
