@@ -41,7 +41,7 @@ function copyPassword() {
   const passwordOutput = document.getElementById('passwordOutput');
   passwordOutput.select();
   document.execCommand('copy');
-  alert('Password copied to clipboard!');
+  // alert('Password copied to clipboard!');
 }
 
 // Add event listener to generate button
@@ -93,7 +93,7 @@ function updateCheckboxes() {
 // Initial call to ensure at least one checkbox is selected
 
 function updateURL(url) {
-  history.pushState({}, '', url);
+  history.replaceState({}, '', url);
 }
 
 function updateURLparams() {
