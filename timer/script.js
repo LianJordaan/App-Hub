@@ -8,15 +8,24 @@ let savedTime = {
   seconds: 0
 };
 
-// Load saved timer values from cookies
+// Load saved timer values from cookies (including timer state)
 function loadTimerFromCookies() {
-  const savedTimeData = JSON.parse(getCookie('timerData')) || savedTime;
-  setTimer(savedTimeData);
+  const savedTimeData = JSON.parse(getCookie('timerData'));
+  if (savedTimeData) {
+    setTimer(savedTimeData);
+    savedTime = savedTimeData;
+    const timerState = getCookie('timerState');
+    if (timerState === 'running') {
+      isPaused = false;
+      startTimer();
+    }
+  }
 }
 
-// Update cookies every second
+// Update cookies every second or when necessary
 function updateTimerToCookies() {
-  setCookie('timerData', JSON.stringify(savedTime), 1); // Saves the timer state for 1 day
+  setCookie('timerData', JSON.stringify(savedTime), 1); // Save the timer state for 1 day
+  setCookie('timerState', isPaused ? 'paused' : 'running', 1); // Save the running/paused state
 }
 
 // Set cookie helper
@@ -48,7 +57,7 @@ function setTimer({ days, hours, minutes, seconds }) {
   updateTimeDisplay(days, hours, minutes, seconds);
 }
 
-// Normalize the timer values so that, for example, 90 minutes becomes 1 hour and 30 minutes
+// Normalize the timer values (handle 90 minutes as 1 hour 30 minutes, etc.)
 function normalizeTime(time) {
   if (time.seconds >= 60) {
     time.minutes += Math.floor(time.seconds / 60);
@@ -96,7 +105,7 @@ function startTimer() {
   document.getElementById('playPauseBtn').innerText = 'Pause';
   
   timerInterval = setInterval(() => {
-    // Update timer values here, decrease time
+    // Decrease time
     if (time.seconds === 0) {
       if (time.minutes === 0) {
         if (time.hours === 0) {
@@ -125,7 +134,8 @@ function startTimer() {
     }
     
     updateTimeDisplay(time.days, time.hours, time.minutes, time.seconds);
-    updateTimerToCookies();
+    savedTime = { days: time.days, hours: time.hours, minutes: time.minutes, seconds: time.seconds };
+    updateTimerToCookies();  // Save the timer and its state each second
   }, 1000);
 }
 
@@ -133,12 +143,13 @@ function pauseTimer() {
   isPaused = true;
   clearInterval(timerInterval);
   document.getElementById('playPauseBtn').innerText = 'Play';
+  updateTimerToCookies();  // Save the paused state
 }
 
 // Reset the timer to the last saved time
 function resetTimer() {
   clearInterval(timerInterval);
-  setTimer(savedTime);
+  setTimer(savedTime);  // Reset to saved time
   isPaused = true;
   document.getElementById('playPauseBtn').innerText = 'Play';
 }
@@ -146,7 +157,7 @@ function resetTimer() {
 // Attach event listeners to inputs to update the timer display as the user types
 function handleInputChange() {
   const time = getTimer();
-  setTimer(time); // Automatically normalize the input
+  setTimer(time);  // Automatically normalize the input
 }
 
 // Add input event listeners
@@ -157,10 +168,10 @@ function handleInputChange() {
 // Save the current timer when leaving the page
 window.addEventListener('beforeunload', () => {
   savedTime = getTimer();
-  updateTimerToCookies();
+  updateTimerToCookies();  // Save time and state before leaving the page
 });
 
-// Load saved time on page load
+// Load saved time and state on page load
 loadTimerFromCookies();
 
 // Attach event listeners to the play/pause and reset buttons
