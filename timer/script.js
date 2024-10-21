@@ -6,12 +6,11 @@ let lastSaveTime; // The time when the page was last saved
 // Load the timer state and time from cookies
 function loadTimerFromCookies() {
   const savedSeconds = parseInt(getCookie('remainingSeconds'), 10);
-  const savedLastSaveTime = parseInt(getCookie('lastSaveTime'), 10);
   const timerState = getCookie('timerState');
   
-  if (savedSeconds && savedLastSaveTime) {
+  if (savedSeconds) {
     const currentTime = Math.floor(Date.now() / 1000);
-    const timeDifference = currentTime - savedLastSaveTime;
+    const timeDifference = currentTime - currentTime;
     
     // Subtract the time difference from remainingSeconds if the timer was running
     if (timerState === 'running') {
@@ -34,7 +33,7 @@ function loadTimerFromCookies() {
 function updateTimerToCookies() {
   setCookie('remainingSeconds', remainingSeconds, 1);
   setCookie('timerState', isPaused ? 'paused' : 'running', 1);
-  setCookie('lastSaveTime', Math.floor(Date.now() / 1000), 1);
+  // setCookie('lastSaveTime', Math.floor(Date.now() / 1000), 1);
 }
 
 // Set cookie helper
