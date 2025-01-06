@@ -7,7 +7,8 @@ function convertUsername() {
   outputText.value = '';
   
   // Perform API request to convert UUID to username
-  const url = `https://webprox.glitch.me/?url=https://playerdb.co/api/player/minecraft/${inputText}`;
+  // const url = `https://webprox.glitch.me/?url=https://playerdb.co/api/player/minecraft/${inputText}`;
+  const url = `https://playerdb.co/api/player/minecraft/${inputText}`;
   fetch(url)
     .then(response => {
       if (!response.ok) {
