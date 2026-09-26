@@ -1,257 +1,278 @@
-// Get the canvas element and its context
+// Get the canvas element and its context.
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-// Set up some initial values
+// Set up some initial values.
 let isDrawing = false;
+let activePointerId = null;
 let lastX = 0;
 let lastY = 0;
 let hue = 0;
 let lineWidth = 10;
 
-// Set the canvas size based on the window size
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight - 50;
+// Keep the original canvas sizing.
+canvas.width = Math.max(1, window.innerWidth);
+canvas.height = Math.max(1, window.innerHeight - 50);
 
-canvas.willReadFrequently = true;
+// Apply these to the canvas only, not the page or toolbar.
+// This lets a finger draw instead of scrolling/zooming the page on the canvas.
+// No mobile-device detection: touch and mouse can be used on the same laptop.
+canvas.style.touchAction = 'none';
+canvas.style.userSelect = 'none';
+canvas.style.webkitUserSelect = 'none';
+canvas.style.webkitTouchCallout = 'none';
 
-// Function that is called when the mouse moves on the canvas
-function draw(event) {
-  if (!event.buttons & 1) isDrawing = false;
-  // If the mouse isn't currently being clicked, exit the function
-  if (!isDrawing) return;
+// Convert viewport coordinates to canvas pixels, including CSS size scaling.
+function getCanvasPoint(event) {
+  const rect = canvas.getBoundingClientRect();
 
-  // Set the stroke style (color) and line width based on user input
+  return {
+    x: (event.clientX - rect.left) * (canvas.width / (rect.width || 1)),
+    y: (event.clientY - rect.top) * (canvas.height / (rect.height || 1))
+  };
+}
+
+function applyBrushStyle() {
   if (document.getElementById('rainbow-mode').checked) {
-    // If rainbow mode is on, use a hue value that increases over time
     ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
   } else {
-    // Otherwise, use the selected color from the color picker
     ctx.strokeStyle = document.getElementById('color-picker').value;
   }
-  ctx.lineWidth = document.getElementById('brush-size').valueAsNumber;
+
+  const selectedWidth = document.getElementById('brush-size').valueAsNumber;
+
+  ctx.lineWidth = Number.isFinite(selectedWidth) && selectedWidth > 0
+    ? selectedWidth
+    : lineWidth;
+
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
+}
 
-  // Calculate the mouse position relative to the canvas
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = event.clientX - rect.left;
-  const mouseY = event.clientY - rect.top;
-
-  // Draw a line from the last mouse position to the current one
-  ctx.beginPath();
-  ctx.moveTo(lastX, lastY);
-  ctx.lineTo(mouseX, mouseY);
-  ctx.stroke();
-
-  // Update the last mouse position
-  [lastX, lastY] = [mouseX, mouseY];
-
-  // If rainbow mode is on and the rainbow type is "draw", increase the hue value
-  if (document.getElementById('rainbow-mode').checked) {
-    if (document.getElementById('rainbow-type').value == "draw") {
-      hue += 1;
-      if (hue >= 360) hue = 0;
-    }
+function advanceDrawHue() {
+  if (
+    document.getElementById('rainbow-mode').checked &&
+    document.getElementById('rainbow-type').value === 'draw'
+  ) {
+    hue = (hue + 1) % 360;
   }
 }
 
-// Set up event listeners for mouse down, move, and up
-canvas.addEventListener('mousedown', (event) => {
-  if (event.button === 0) {
-    isDrawing = true;
-    [lastX, lastY] = [event.clientX, event.clientY];
+// Draw only for the pointer that started this stroke.
+// A second finger, mouse, or pen cannot hijack the active stroke.
+function draw(event) {
+  if (!isDrawing || event.pointerId !== activePointerId) return;
+
+  const point = getCanvasPoint(event);
+
+  if (point.x === lastX && point.y === lastY) return;
+
+  applyBrushStyle();
+
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(point.x, point.y);
+  ctx.stroke();
+
+  [lastX, lastY] = [point.x, point.y];
+
+  advanceDrawHue();
+}
+
+function startDrawing(event) {
+  // Accept a single primary touch, left mouse button, or pen tip.
+  // Ignore right/middle clicks, pen side buttons, and additional fingers.
+  if (isDrawing || !event.isPrimary || event.button !== 0) return;
+
+  if (event.cancelable) event.preventDefault();
+
+  const point = getCanvasPoint(event);
+
+  activePointerId = event.pointerId;
+  isDrawing = true;
+
+  [lastX, lastY] = [point.x, point.y];
+
+  // Keep receiving movement/release events after leaving the canvas.
+  // Window listeners below also cover an unavailable or lost capture.
+  try {
+    canvas.setPointerCapture(event.pointerId);
+  } catch (error) {
+    // A pointer can be canceled before capture is acquired.
+    // Window pointerup/pointercancel and blur handlers still clean up.
+  }
+
+  // A tap/click without movement should draw a dot too.
+  applyBrushStyle();
+
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, ctx.lineWidth / 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  advanceDrawHue();
+}
+
+function moveDrawing(event) {
+  if (!isDrawing || event.pointerId !== activePointerId) return;
+
+  // Prevent a stuck stroke after a missed mouse/pen release.
+  // Do not require a mouse button for a finger stroke.
+  if (
+    (event.pointerType === 'mouse' || event.pointerType === 'pen') &&
+    (event.buttons & 1) === 0
+  ) {
+    finishDrawing();
+    return;
+  }
+
+  if (event.cancelable) event.preventDefault();
+
+  draw(event);
+}
+
+function finishDrawing(event) {
+  if (!isDrawing) return;
+  if (event && event.pointerId !== activePointerId) return;
+
+  // Include the final release position, but not cancellation/capture-loss
+  // coordinates, which need not describe an actual movement.
+  if (event && event.type === 'pointerup') {
+    if (event.cancelable) event.preventDefault();
+
     draw(event);
-  }  
-});
+  }
 
-canvas.addEventListener('mousemove', draw);
+  const pointerId = activePointerId;
 
-canvas.addEventListener('mouseup', (event) => {
+  isDrawing = false;
+  activePointerId = null;
+
+  // Reset state before releasing capture so lostpointercapture cannot save
+  // the same stroke a second time.
+  if (canvas.hasPointerCapture(pointerId)) {
+    canvas.releasePointerCapture(pointerId);
+  }
+
+  // Save exactly once per stroke, including interrupted strokes.
   saveState();
-  if (event.button === 0) {
-    isDrawing = false;
-  }  
+}
+
+// Pointer Events handle mouse, touch, and pen without separate device modes.
+// Do not keep the old mousedown/mousemove/mouseup drawing listeners.
+canvas.addEventListener('pointerdown', startDrawing, { passive: false });
+window.addEventListener('pointermove', moveDrawing, { passive: false });
+window.addEventListener('pointerup', finishDrawing, { passive: false });
+window.addEventListener('pointercancel', finishDrawing);
+canvas.addEventListener('lostpointercapture', finishDrawing);
+
+window.addEventListener('blur', () => finishDrawing());
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) finishDrawing();
 });
 
-// Set up an interval that updates the UI based on rainbow mode and type
+// Avoid a long-press context menu interrupting touch/pen drawing.
+canvas.addEventListener('contextmenu', (event) => event.preventDefault());
+
+// Update the UI based on rainbow mode and type.
 setInterval(() => {
-  // Check if rainbow mode is enabled
   if (document.getElementById('rainbow-mode').checked) {
-    // If rainbow mode is enabled, hide elements with the "rainbowmode-hide" class
     const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
+
     elementsToHide.forEach(element => {
       element.hidden = true;
     });
 
-    // If rainbow mode is enabled, show elements with the "rainbowmode-show" class
     const elementsToShow = document.querySelectorAll('.rainbowmode-show');
+
     elementsToShow.forEach(element => {
       element.hidden = false;
     });
   } else {
-    // If rainbow mode is not enabled, show elements with the "rainbowmode-hide" class
     const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
+
     elementsToHide.forEach(element => {
       element.hidden = false;
     });
 
-    // If rainbow mode is not enabled, hide elements with the "rainbowmode-show" class
     const elementsToShow = document.querySelectorAll('.rainbowmode-show');
+
     elementsToShow.forEach(element => {
       element.hidden = true;
     });
   }
 
-  // Check if rainbow type is set to "constant" and rainbow mode is enabled
-  if (document.getElementById('rainbow-type').value == "constant" && document.getElementById('rainbow-mode').checked) {
-    // If rainbow type is "constant" and rainbow mode is enabled, show elements with the "rainbowmode-constant-show" class
-    const elementsToShow = document.querySelectorAll('.rainbowmode-constant-show');
+  if (
+    document.getElementById('rainbow-type').value === 'constant' &&
+    document.getElementById('rainbow-mode').checked
+  ) {
+    const elementsToShow = document.querySelectorAll(
+      '.rainbowmode-constant-show'
+    );
+
     elementsToShow.forEach(element => {
       element.hidden = false;
     });
   } else {
-    // If rainbow type is not "constant" or rainbow mode is not enabled, hide elements with the "rainbowmode-constant-show" class
-    const elementsToShow = document.querySelectorAll('.rainbowmode-constant-show');
+    const elementsToShow = document.querySelectorAll(
+      '.rainbowmode-constant-show'
+    );
+
     elementsToShow.forEach(element => {
       element.hidden = true;
     });
   }
 }, 100);
 
-// Initialize variables
+// Rainbow animation timer.
 let intervalId;
 let rainbowSpeed;
 
-// Define function to start the interval
 const startInterval = () => {
   intervalId = setInterval(() => {
-    // Check if rainbow mode is enabled and rainbow type is set to "constant"
-    if (document.getElementById('rainbow-mode').checked && document.getElementById('rainbow-type').value == "constant") {
-      // If rainbow mode is enabled and rainbow type is "constant", increment the hue value
+    if (
+      document.getElementById('rainbow-mode').checked &&
+      document.getElementById('rainbow-type').value === 'constant'
+    ) {
       hue += 1;
+
       if (hue >= 360) hue = 0;
     }
   }, rainbowSpeed);
 };
 
-// Define function to stop the interval
 const stopInterval = () => {
   clearInterval(intervalId);
 };
 
-// Add event listener to the rainbow speed input element
 document.getElementById('rainbow-speed').addEventListener('change', () => {
-  // Stop the interval when the rainbow speed is changed
   stopInterval();
-  // Calculate the new rainbow speed based on the value of the rainbow speed input element
-  rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber;
-  // Start the interval with the new rainbow speed
+
+  rainbowSpeed =
+    201 - document.getElementById('rainbow-speed').valueAsNumber;
+
   startInterval();
 });
 
-// Set the initial value of the rainbow speed and start the interval
 rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber;
 startInterval();
 
-//ctx.fillStyle = '#f00';
-//ctx.fillRect(100, 100, 200, 200);
-//ctx.fillStyle = '#0f0';
-//ctx.beginPath();
-//ctx.arc(150, 150, 50, 0, 2 * Math.PI);
-//ctx.fill();
-//ctx.fillStyle = '#00f';
-//ctx.beginPath();
-//ctx.arc(250, 250, 50, 0, 2 * Math.PI);
-//ctx.fill();
-//
-//
-//function fillBucket() {
-//  // Get the color of the starting point
-//  const startX = 150;
-//  const startY = 150;
-//  const startColor = ctx.getImageData(startX, startY, 1, 1).data;
-//
-//  // Create a stack to keep track of pixels to fill
-//  const stack = [{x: startX, y: startY}];
-//
-//  // Create an array to keep track of active intervals
-//  let intervals = [];
-//
-//  // Define the number of intervals to start
-//  const numIntervals = 100;
-//
-//  // Define the function to be executed by each interval
-//  function fillPixels() {
-//    // Loop through the stack until it's empty or we've filled the desired number of pixels
-//    for (let i = 0; i < numIntervals; i++) {
-//      if (stack.length === 0) {
-//        // Stop the interval if there are no more pixels to fill
-//        clearInterval(intervalId);
-//        // Remove the interval from the active intervals array
-//        intervals.splice(intervals.indexOf(intervalId), 1);
-//        break;
-//      }
-//
-//      // Pop the next pixel from the stack
-//      const pixel = stack.pop();
-//
-//      // Get the color of the pixel
-//      const color = ctx.getImageData(pixel.x, pixel.y, 1, 1).data;
-//
-//      // Check if the pixel needs to be filled
-//      if (color[0] === startColor[0] && color[1] === startColor[1] && color[2] === startColor[2]) {
-//        // Fill the pixel with the new color
-//        ctx.fillStyle = '#fff';
-//        ctx.fillRect(pixel.x, pixel.y, 1, 1);
-//
-//        // Add neighboring pixels to the stack
-//        if (pixel.x > 0) stack.push({x: pixel.x - 1, y: pixel.y});
-//        if (pixel.x < canvas.width - 1) stack.push({x: pixel.x + 1, y: pixel.y});
-//        if (pixel.y > 0) stack.push({x: pixel.x, y: pixel.y - 1});
-//        if (pixel.y < canvas.height - 1) stack.push({x: pixel.x, y: pixel.y + 1});
-//      }
-//    }
-//  }
-//
-//  // Start the desired number of intervals
-//  const numPixelsToFill = canvas.width * canvas.height;
-//  const numIntervalsToStart = Math.min(numIntervals, numPixelsToFill);
-//  for (let i = 0; i < numIntervalsToStart; i++) {
-//    const intervalId = setInterval(fillPixels, 0);
-//    intervals.push(intervalId);
-//  }
-//}
+// Download the canvas as a PNG.
+const downloadBtn = document.getElementById('download-btn');
 
+downloadBtn.addEventListener('click', function() {
+  const link = document.createElement('a');
 
-// get a reference to the download button
-const downloadBtn = document.getElementById("download-btn");
-
-// add a click event listener to the button
-downloadBtn.addEventListener("click", function() {
-  // get a reference to the canvas element
-  const canvas = document.getElementById("canvas");
-
-  // create a temporary link element
-  const link = document.createElement("a");
-
-  // set the link's href attribute to the data URL of the canvas image
   link.href = canvas.toDataURL();
+  link.download = 'download.png';
 
-  // set the link's download attribute to the filename you want to save the image as
-  link.download = "download.png";
-
-  // add the link to the DOM
   document.body.appendChild(link);
-
-  // click the link to trigger the download
   link.click();
-
-  // remove the link from the DOM
   document.body.removeChild(link);
 });
 
-
+// Import an image.
 const importBtn = document.querySelector('#import-btn');
 const imgLoader = document.querySelector('#imgLoader');
 
@@ -264,65 +285,76 @@ imgLoader.addEventListener('change', () => {
 
   imgLoader.value = '';
 
+  // The file picker may have been canceled.
+  if (!file) return;
+
   const reader = new FileReader();
 
   reader.addEventListener('load', () => {
     const img = new Image();
+
     img.onload = function() {
       ctx.drawImage(img, 0, 0);
       saveState();
-    }
+    };
+
     img.src = reader.result;
   });
 
   reader.readAsDataURL(file);
 });
 
-
+// Undo/redo history.
 let undoStack = [];
 let redoStack = [];
 
-// Function to save the current canvas state
 function saveState() {
   undoStack.push(canvas.toDataURL());
+
+  // A new stroke/import starts a new history branch.
+  redoStack.length = 0;
 }
 
-// Function to undo the last action
 function undo() {
   if (undoStack.length > 1) {
     redoStack.push(undoStack.pop());
+
     const img = new Image();
+
     img.src = undoStack[undoStack.length - 1];
+
     img.onload = function() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
-    }
+    };
   }
 }
 
-// Function to redo the last undone action
 function redo() {
   if (redoStack.length > 0) {
     const img = new Image();
+
     img.src = redoStack.pop();
+
     img.onload = function() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       undoStack.push(canvas.toDataURL());
-    }
+    };
   }
 }
 
-// Save initial state
+// Save the initial blank canvas.
 saveState();
 
-// Attach undo and redo functions to buttons
+// Attach undo and redo functions to buttons.
 const undoBtn = document.querySelector('#undo-btn');
 const redoBtn = document.querySelector('#redo-btn');
 
 undoBtn.addEventListener('click', undo);
 redoBtn.addEventListener('click', redo);
 
+// Keyboard shortcuts.
 document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.key === 'z') {
     undo();
