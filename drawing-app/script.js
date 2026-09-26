@@ -1,28 +1,36 @@
-// Get the canvas element and its context.
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-// Set up some initial values.
-let isDrawing = false;
-let activePointerId = null;
-let lastX = 0;
-let lastY = 0;
-let hue = 0;
-let lineWidth = 10;
+const rainbowMode = document.getElementById('rainbow-mode');
+const rainbowType = document.getElementById('rainbow-type');
+const rainbowSpeedInput = document.getElementById('rainbow-speed');
+const colorPicker = document.getElementById('color-picker');
+const brushSize = document.getElementById('brush-size');
 
-// Keep the original canvas sizing.
+let hue = 0;
+const defaultLineWidth = 10;
+
+// Each pointer gets its own previous position.
+// There is deliberately no isPrimary restriction or one-finger limit.
+const activePointers = new Map();
+
+const undoStack = [];
+const redoStack = [];
+
+// Serialize undo, redo, and imports so image loading cannot overwrite
+// another history operation or a newly started stroke.
+let canvasTask = Promise.resolve();
+let canvasBusy = false;
+
 canvas.width = Math.max(1, window.innerWidth);
 canvas.height = Math.max(1, window.innerHeight - 50);
 
-// Apply these to the canvas only, not the page or toolbar.
-// This lets a finger draw instead of scrolling/zooming the page on the canvas.
-// No mobile-device detection: touch and mouse can be used on the same laptop.
+// Disable browser touch gestures only on the drawing surface.
 canvas.style.touchAction = 'none';
 canvas.style.userSelect = 'none';
 canvas.style.webkitUserSelect = 'none';
 canvas.style.webkitTouchCallout = 'none';
 
-// Convert viewport coordinates to canvas pixels, including CSS size scaling.
 function getCanvasPoint(event) {
   const rect = canvas.getBoundingClientRect();
 
@@ -33,332 +41,325 @@ function getCanvasPoint(event) {
 }
 
 function applyBrushStyle() {
-  if (document.getElementById('rainbow-mode').checked) {
-    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-  } else {
-    ctx.strokeStyle = document.getElementById('color-picker').value;
-  }
+  ctx.strokeStyle = rainbowMode.checked
+    ? `hsl(${hue}, 100%, 50%)`
+    : colorPicker.value;
 
-  const selectedWidth = document.getElementById('brush-size').valueAsNumber;
+  const selectedWidth = brushSize.valueAsNumber;
 
   ctx.lineWidth = Number.isFinite(selectedWidth) && selectedWidth > 0
     ? selectedWidth
-    : lineWidth;
+    : defaultLineWidth;
 
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 }
 
 function advanceDrawHue() {
-  if (
-    document.getElementById('rainbow-mode').checked &&
-    document.getElementById('rainbow-type').value === 'draw'
-  ) {
+  if (rainbowMode.checked && rainbowType.value === 'draw') {
     hue = (hue + 1) % 360;
   }
 }
 
-// Draw only for the pointer that started this stroke.
-// A second finger, mouse, or pen cannot hijack the active stroke.
 function draw(event) {
-  if (!isDrawing || event.pointerId !== activePointerId) return;
+  const pointer = activePointers.get(event.pointerId);
+  if (!pointer) return;
 
   const point = getCanvasPoint(event);
-
-  if (point.x === lastX && point.y === lastY) return;
+  if (point.x === pointer.x && point.y === pointer.y) return;
 
   applyBrushStyle();
 
+  // Always start a new path for this pointer's segment.
+  // Different fingers must never share a previous position or path.
   ctx.beginPath();
-  ctx.moveTo(lastX, lastY);
+  ctx.moveTo(pointer.x, pointer.y);
   ctx.lineTo(point.x, point.y);
   ctx.stroke();
 
-  [lastX, lastY] = [point.x, point.y];
+  pointer.x = point.x;
+  pointer.y = point.y;
 
   advanceDrawHue();
 }
 
 function startDrawing(event) {
-  // Accept a single primary touch, left mouse button, or pen tip.
-  // Ignore right/middle clicks, pen side buttons, and additional fingers.
-  if (isDrawing || !event.isPrimary || event.button !== 0) return;
-
+  // Allow all fingers, not just the primary finger.
+  // Ignore right/middle mouse buttons and pen side-button starts.
+  if (event.button !== 0 || activePointers.has(event.pointerId)) return;
   if (event.cancelable) event.preventDefault();
+  if (canvasBusy) return;
 
   const point = getCanvasPoint(event);
+  activePointers.set(event.pointerId, point);
 
-  activePointerId = event.pointerId;
-  isDrawing = true;
-
-  [lastX, lastY] = [point.x, point.y];
-
-  // Keep receiving movement/release events after leaving the canvas.
-  // Window listeners below also cover an unavailable or lost capture.
+  // Capture each pointer independently, including secondary fingers.
   try {
     canvas.setPointerCapture(event.pointerId);
   } catch (error) {
-    // A pointer can be canceled before capture is acquired.
-    // Window pointerup/pointercancel and blur handlers still clean up.
+    // Window listeners still handle movement and release without capture.
   }
 
-  // A tap/click without movement should draw a dot too.
+  // Draw a dot immediately, so taps also leave a mark.
   applyBrushStyle();
-
   ctx.fillStyle = ctx.strokeStyle;
   ctx.beginPath();
-  ctx.arc(lastX, lastY, ctx.lineWidth / 2, 0, Math.PI * 2);
+  ctx.arc(point.x, point.y, ctx.lineWidth / 2, 0, Math.PI * 2);
   ctx.fill();
 
   advanceDrawHue();
 }
 
 function moveDrawing(event) {
-  if (!isDrawing || event.pointerId !== activePointerId) return;
+  if (!activePointers.has(event.pointerId)) return;
 
-  // Prevent a stuck stroke after a missed mouse/pen release.
-  // Do not require a mouse button for a finger stroke.
+  // Recover from a missed mouse/pen release without ending other strokes.
   if (
     (event.pointerType === 'mouse' || event.pointerType === 'pen') &&
     (event.buttons & 1) === 0
   ) {
-    finishDrawing();
+    endPointer(event.pointerId);
     return;
   }
 
   if (event.cancelable) event.preventDefault();
-
   draw(event);
 }
 
+function releasePointer(pointerId) {
+  try {
+    if (canvas.hasPointerCapture(pointerId)) {
+      canvas.releasePointerCapture(pointerId);
+    }
+  } catch (error) {
+    // The browser may already have canceled or released this pointer.
+  }
+}
+
+function endPointer(pointerId) {
+  if (!activePointers.delete(pointerId)) return;
+
+  // Remove state first: lostpointercapture must not end the stroke twice.
+  releasePointer(pointerId);
+
+  // Treat overlapping strokes as one undoable gesture.
+  // Lifting one finger does not stop any remaining fingers.
+  if (activePointers.size === 0) saveState();
+}
+
 function finishDrawing(event) {
-  if (!isDrawing) return;
-  if (event && event.pointerId !== activePointerId) return;
+  if (!activePointers.has(event.pointerId)) return;
 
-  // Include the final release position, but not cancellation/capture-loss
-  // coordinates, which need not describe an actual movement.
-  if (event && event.type === 'pointerup') {
+  // Cancellation/capture-loss coordinates are not drawing positions.
+  if (event.type === 'pointerup') {
     if (event.cancelable) event.preventDefault();
-
     draw(event);
   }
 
-  const pointerId = activePointerId;
+  endPointer(event.pointerId);
+}
 
-  isDrawing = false;
-  activePointerId = null;
+function finishAllDrawing() {
+  if (activePointers.size === 0) return;
 
-  // Reset state before releasing capture so lostpointercapture cannot save
-  // the same stroke a second time.
-  if (canvas.hasPointerCapture(pointerId)) {
-    canvas.releasePointerCapture(pointerId);
-  }
+  const pointerIds = [...activePointers.keys()];
+  activePointers.clear();
 
-  // Save exactly once per stroke, including interrupted strokes.
+  pointerIds.forEach(releasePointer);
   saveState();
 }
 
-// Pointer Events handle mouse, touch, and pen without separate device modes.
-// Do not keep the old mousedown/mousemove/mouseup drawing listeners.
 canvas.addEventListener('pointerdown', startDrawing, { passive: false });
 window.addEventListener('pointermove', moveDrawing, { passive: false });
 window.addEventListener('pointerup', finishDrawing, { passive: false });
 window.addEventListener('pointercancel', finishDrawing);
 canvas.addEventListener('lostpointercapture', finishDrawing);
 
-window.addEventListener('blur', () => finishDrawing());
-
+window.addEventListener('blur', finishAllDrawing);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) finishDrawing();
+  if (document.hidden) finishAllDrawing();
 });
 
-// Avoid a long-press context menu interrupting touch/pen drawing.
 canvas.addEventListener('contextmenu', (event) => event.preventDefault());
 
-// Update the UI based on rainbow mode and type.
-setInterval(() => {
-  if (document.getElementById('rainbow-mode').checked) {
-    const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
+// Rainbow-mode controls.
+function setElementsHidden(selector, hidden) {
+  document.querySelectorAll(selector).forEach(element => {
+    element.hidden = hidden;
+  });
+}
 
-    elementsToHide.forEach(element => {
-      element.hidden = true;
-    });
+function updateRainbowUI() {
+  const enabled = rainbowMode.checked;
 
-    const elementsToShow = document.querySelectorAll('.rainbowmode-show');
+  setElementsHidden('.rainbowmode-hide', enabled);
+  setElementsHidden('.rainbowmode-show', !enabled);
+  setElementsHidden(
+    '.rainbowmode-constant-show',
+    !(enabled && rainbowType.value === 'constant')
+  );
+}
 
-    elementsToShow.forEach(element => {
-      element.hidden = false;
-    });
-  } else {
-    const elementsToHide = document.querySelectorAll('.rainbowmode-hide');
+updateRainbowUI();
+setInterval(updateRainbowUI, 100);
 
-    elementsToHide.forEach(element => {
-      element.hidden = false;
-    });
-
-    const elementsToShow = document.querySelectorAll('.rainbowmode-show');
-
-    elementsToShow.forEach(element => {
-      element.hidden = true;
-    });
-  }
-
-  if (
-    document.getElementById('rainbow-type').value === 'constant' &&
-    document.getElementById('rainbow-mode').checked
-  ) {
-    const elementsToShow = document.querySelectorAll(
-      '.rainbowmode-constant-show'
-    );
-
-    elementsToShow.forEach(element => {
-      element.hidden = false;
-    });
-  } else {
-    const elementsToShow = document.querySelectorAll(
-      '.rainbowmode-constant-show'
-    );
-
-    elementsToShow.forEach(element => {
-      element.hidden = true;
-    });
-  }
-}, 100);
-
-// Rainbow animation timer.
 let intervalId;
-let rainbowSpeed;
 
-const startInterval = () => {
-  intervalId = setInterval(() => {
-    if (
-      document.getElementById('rainbow-mode').checked &&
-      document.getElementById('rainbow-type').value === 'constant'
-    ) {
-      hue += 1;
-
-      if (hue >= 360) hue = 0;
-    }
-  }, rainbowSpeed);
-};
-
-const stopInterval = () => {
+function startInterval() {
   clearInterval(intervalId);
-};
 
-document.getElementById('rainbow-speed').addEventListener('change', () => {
-  stopInterval();
+  const value = rainbowSpeedInput.valueAsNumber;
+  const delay = Number.isFinite(value) ? Math.max(1, 201 - value) : 100;
 
-  rainbowSpeed =
-    201 - document.getElementById('rainbow-speed').valueAsNumber;
+  intervalId = setInterval(() => {
+    if (rainbowMode.checked && rainbowType.value === 'constant') {
+      hue = (hue + 1) % 360;
+    }
+  }, delay);
+}
 
-  startInterval();
-});
-
-rainbowSpeed = 201 - document.getElementById('rainbow-speed').valueAsNumber;
+rainbowSpeedInput.addEventListener('change', startInterval);
 startInterval();
 
+// Canvas history and image loading.
+function saveState() {
+  undoStack.push(canvas.toDataURL());
+  redoStack.length = 0;
+}
+
+function loadImage(source) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('The image could not be loaded.'));
+    img.src = source;
+  });
+}
+
+function queueCanvasChange(action) {
+  // Finish any current multi-finger gesture before changing the canvas.
+  finishAllDrawing();
+  canvasBusy = true;
+
+  const task = canvasTask.then(action).catch(error => {
+    console.error('Canvas operation failed:', error);
+  });
+
+  canvasTask = task;
+
+  task.then(() => {
+    // A later operation may already be waiting in the queue.
+    if (canvasTask === task) canvasBusy = false;
+  });
+
+  return task;
+}
+
+function undo() {
+  return queueCanvasChange(async () => {
+    if (undoStack.length <= 1) return;
+
+    const previousState = undoStack[undoStack.length - 2];
+    const img = await loadImage(previousState);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+
+    redoStack.push(undoStack.pop());
+  });
+}
+
+function redo() {
+  return queueCanvasChange(async () => {
+    if (redoStack.length === 0) return;
+
+    const nextState = redoStack[redoStack.length - 1];
+    const img = await loadImage(nextState);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+
+    undoStack.push(redoStack.pop());
+  });
+}
+
+saveState();
+
+document.getElementById('undo-btn').addEventListener('click', undo);
+document.getElementById('redo-btn').addEventListener('click', redo);
+
 // Download the canvas as a PNG.
-const downloadBtn = document.getElementById('download-btn');
+document.getElementById('download-btn').addEventListener('click', () => {
+  queueCanvasChange(() => {
+    const link = document.createElement('a');
 
-downloadBtn.addEventListener('click', function() {
-  const link = document.createElement('a');
+    link.href = canvas.toDataURL();
+    link.download = 'download.png';
 
-  link.href = canvas.toDataURL();
-  link.download = 'download.png';
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  });
 });
 
 // Import an image.
-const importBtn = document.querySelector('#import-btn');
-const imgLoader = document.querySelector('#imgLoader');
+const importBtn = document.getElementById('import-btn');
+const imgLoader = document.getElementById('imgLoader');
 
 importBtn.addEventListener('click', () => {
+  finishAllDrawing();
   imgLoader.click();
 });
 
 imgLoader.addEventListener('change', () => {
   const file = imgLoader.files[0];
-
   imgLoader.value = '';
-
-  // The file picker may have been canceled.
   if (!file) return;
 
   const reader = new FileReader();
 
-  reader.addEventListener('load', () => {
-    const img = new Image();
+  reader.addEventListener('load', async () => {
+    try {
+      const img = await loadImage(reader.result);
 
-    img.onload = function() {
-      ctx.drawImage(img, 0, 0);
-      saveState();
-    };
+      await queueCanvasChange(() => {
+        ctx.drawImage(img, 0, 0);
+        saveState();
+      });
+    } catch (error) {
+      console.error('Unable to import the selected image:', error);
+    }
+  });
 
-    img.src = reader.result;
+  reader.addEventListener('error', () => {
+    console.error('Unable to read the selected file:', reader.error);
   });
 
   reader.readAsDataURL(file);
 });
 
-// Undo/redo history.
-let undoStack = [];
-let redoStack = [];
+// Keyboard shortcuts, without overriding typing in toolbar fields.
+document.addEventListener('keydown', (event) => {
+  const target = event.target;
 
-function saveState() {
-  undoStack.push(canvas.toDataURL());
-
-  // A new stroke/import starts a new history branch.
-  redoStack.length = 0;
-}
-
-function undo() {
-  if (undoStack.length > 1) {
-    redoStack.push(undoStack.pop());
-
-    const img = new Image();
-
-    img.src = undoStack[undoStack.length - 1];
-
-    img.onload = function() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
+  if (
+    target instanceof Element &&
+    (target.closest('input, textarea, select') || target.isContentEditable)
+  ) {
+    return;
   }
-}
 
-function redo() {
-  if (redoStack.length > 0) {
-    const img = new Image();
+  if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
 
-    img.src = redoStack.pop();
+  const key = event.key.toLowerCase();
 
-    img.onload = function() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      undoStack.push(canvas.toDataURL());
-    };
-  }
-}
-
-// Save the initial blank canvas.
-saveState();
-
-// Attach undo and redo functions to buttons.
-const undoBtn = document.querySelector('#undo-btn');
-const redoBtn = document.querySelector('#redo-btn');
-
-undoBtn.addEventListener('click', undo);
-redoBtn.addEventListener('click', redo);
-
-// Keyboard shortcuts.
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'z') {
-    undo();
-  } else if (e.ctrlKey && e.key === 'y') {
+  if (key === 'z') {
+    event.preventDefault();
+    if (event.shiftKey) redo();
+    else undo();
+  } else if (key === 'y') {
+    event.preventDefault();
     redo();
   }
 });
